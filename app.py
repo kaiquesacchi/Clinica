@@ -237,7 +237,7 @@ class Consultorio(Base):
 
 
 # =============================================================================
-# Controllers
+# Funções Auxiliares
 # =============================================================================
 
 def criar_paciente(cpf, nome, telefone, email, endereco,
@@ -316,6 +316,31 @@ class FiltroPaciente(FlaskForm):
     plano_de_saude = StringField('plano_de_saude')
 
 
+class FiltroPlanoDeSaude(FlaskForm):
+    nome_da_empresa = StringField('nome_da_empresa')
+    cnpj = StringField('cnpj')
+    telefone = StringField('telefone')
+    email = StringField('email')
+    site = StringField('site')
+
+
+class FiltroSala(FlaskForm):
+    numero = StringField('numero')
+    equipamentos = StringField('equipamentos')
+
+
+class FiltroMedico(FlaskForm):
+    cpf = StringField('cpf')
+    nome = StringField('nome')
+    telefone = StringField('telefone')
+    endereco = StringField('endereco')
+    email = StringField('email')
+    periodo_de_trabalho = StringField('periodo_de_trabalho')
+    salario = StringField('salario')
+    crm = StringField('crm')
+    especialidades = StringField('especialidades')
+
+
 # =============================================================================
 # Views
 # =============================================================================
@@ -348,8 +373,8 @@ def teste():
         return str(e)
 
 
-@app.route("/filtrar_pacientes", methods=('GET', 'POST'))
-def pacientes():
+@app.route("/filtrar-paciente", methods=('GET', 'POST'))
+def paciente():
     form = FiltroPaciente(csrf_enabled=False)
     if form.validate_on_submit():
         return str(Paciente.query.filter(
@@ -365,5 +390,66 @@ def pacientes():
     return render_template("filtrar_pacientes.html", form=form)
 
 
+@app.route("/filtrar-plano_de_saude", methods=('GET', 'POST'))
+def plano_de_saude():
+    form = FiltroPlanoDeSaude(csrf_enabled=False)
+    if form.validate_on_submit():
+        return str(PlanoDeSaude.query.filter(
+            (form.nome_da_empresa.data == '' or PlanoDeSaude.nome_da_empresa == form.nome_da_empresa.data),
+            (form.cnpj.data == '' or PlanoDeSaude.cnpj == form.cnpj.data),
+            (form.telefone.data == '' or PlanoDeSaude.telefone == form.telefone.data),
+            (form.email.data == '' or PlanoDeSaude.email == form.email.data),
+            (form.site.data == '' or PlanoDeSaude.site == form.site.data)
+        ).all())
+    return render_template("filtrar_plano_de_saude.html", form=form)
+
+
+@app.route("/filtrar-sala", methods=('GET', 'POST'))
+def sala():
+    form = FiltroSala(csrf_enabled=False)
+    if form.validate_on_submit():
+        return str(Sala.query.filter(
+            (form.numero.data == '' or Sala.numero == form.numero.data),
+            (form.equipamentos.data == '' or Sala.equipamentos == form.equipamentos.data)
+        ).all())
+    return render_template("filtrar_sala.html", form=form)
+
+
+@app.route("/filtrar-medico", methods=('GET', 'POST'))
+def medico():
+    form = FiltroMedico(csrf_enabled=False)
+    if form.validate_on_submit():
+        return str(Medico.query.filter(
+            (form.cpf.data == '' or Medico.cpf == form.cpf.data),
+            (form.nome.data == '' or Medico.nome == form.nome.data),
+            (form.telefone.data == '' or Medico.telefone == form.telefone.data),
+            (form.endereco.data == '' or Medico.endereco == form.endereco.data),
+            (form.email.data == '' or Medico.email == form.email.data),
+            (form.periodo_de_trabalho.data == '' or Medico.periodo_de_trabalho == form.periodo_de_trabalho.data),
+            (form.salario.data == '' or Medico.salario == form.salario.data),
+            (form.crm.data == '' or Medico.crm == form.crm.data),
+            (form.especialidades.data == '' or Medico.especialidades == form.especialidades.data)
+        ).all())
+    return render_template("filtrar_medico.html", form=form)
+
+
 if __name__ == "__main__":
     app.run()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

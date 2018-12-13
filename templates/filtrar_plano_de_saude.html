@@ -1,0 +1,11 @@
+{% from "_formhelpers.html" import render_field %}
+<form method=post>
+  <dl>
+    {{ render_field(form.nome_da_empresa) }}
+    {{ render_field(form.cnpj) }}
+    {{ render_field(form.telefone) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.site) }}
+  </dl>
+  <p><input type=submit value=Filtrar>
+</form>
