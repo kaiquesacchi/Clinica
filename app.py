@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 Base = declarative_base()
@@ -318,6 +317,7 @@ class FiltroPaciente(FlaskForm):
     # Botões
     filtrar = SubmitField(label="Filtrar")
     criar = SubmitField(label="Criar")
+    cancelar = SubmitField(label="Cancelar")
 
 
 class FiltroPlanoDeSaude(FlaskForm):
@@ -330,6 +330,7 @@ class FiltroPlanoDeSaude(FlaskForm):
     # Botões
     filtrar = SubmitField(label="Filtrar")
     criar = SubmitField(label="Criar")
+    cancelar = SubmitField(label="Cancelar")
 
 
 class FiltroSala(FlaskForm):
@@ -339,6 +340,7 @@ class FiltroSala(FlaskForm):
     # Botões
     filtrar = SubmitField(label="Filtrar")
     criar = SubmitField(label="Criar")
+    cancelar = SubmitField(label="Cancelar")
 
 
 class FiltroMedico(FlaskForm):
@@ -355,6 +357,7 @@ class FiltroMedico(FlaskForm):
     # Botões
     filtrar = SubmitField(label="Filtrar")
     criar = SubmitField(label="Criar")
+    cancelar = SubmitField(label="Cancelar")
 
 
 class FiltroOutro(FlaskForm):
@@ -371,6 +374,7 @@ class FiltroOutro(FlaskForm):
     # Botões
     filtrar = SubmitField(label="Filtrar")
     criar = SubmitField(label="Criar")
+    cancelar = SubmitField(label="Cancelar")
 
 
 class FiltroConsultorio(FlaskForm):
@@ -381,15 +385,33 @@ class FiltroConsultorio(FlaskForm):
     # Botões
     filtrar = SubmitField(label="Filtrar")
     criar = SubmitField(label="Criar")
+    cancelar = SubmitField(label="Cancelar")
+
+
+class Home(FlaskForm):
+    paciente = SubmitField(label="Paciente")
+    plano_de_saude = SubmitField(label="Plano de Saúde")
+    sala = SubmitField(label="Sala")
+    medico = SubmitField(label="Médico")
+    outro = SubmitField(label="Outros Funcionários")
+    consultorio = SubmitField(label="Consultório")
 
 
 # =============================================================================
 # Views
 # =============================================================================
 
-@app.route("/home")
+@app.route("/home", methods=('GET', 'POST'))
 def home():
-    return "Home Page"
+    form = Home(csrf_enabled=False)
+    if form.validate_on_submit():
+        if form.paciente.data: return redirect(url_for('paciente'))
+        if form.plano_de_saude.data: return redirect(url_for('plano_de_saude'))
+        if form.sala.data: return redirect(url_for('sala'))
+        if form.medico.data: return redirect(url_for('medico'))
+        if form.outro.data: return redirect(url_for('outro'))
+        if form.consultorio.data: return redirect(url_for('consultorio'))
+    return render_template("home.html", form=form)
 
 @app.route("/teste")
 def teste():
@@ -429,7 +451,7 @@ def paciente():
                            form.data_de_nascimento.data, None,
                            form.sexo.data, form.plano_de_saude.data)
             return redirect(url_for('home'))
-        else:
+        elif form.filtrar.data:
             return str(Paciente.query.filter(
                 (form.cpf.data == '' or Paciente.cpf == form.cpf.data),
                 (form.nome.data == '' or Paciente.nome == form.nome.data),
@@ -440,6 +462,8 @@ def paciente():
                 (form.sexo.data == '' or Paciente.sexo == form.sexo.data),
                 (form.plano_de_saude.data == '' or Paciente.plano_de_saude == form.plano_de_saude.data)
             ).all())
+        else:
+            return redirect(url_for('home'))
     return render_template("filtrar_pacientes.html", form=form)
 
 
@@ -452,7 +476,7 @@ def plano_de_saude():
                                  form.telefone.data, form.email.data,
                                  form.site.data)
             return redirect(url_for('home'))
-        else:
+        elif form.filtrar.data:
             return str(PlanoDeSaude.query.filter(
                 (form.nome_da_empresa.data == '' or PlanoDeSaude.nome_da_empresa == form.nome_da_empresa.data),
                 (form.cnpj.data == '' or PlanoDeSaude.cnpj == form.cnpj.data),
@@ -460,6 +484,8 @@ def plano_de_saude():
                 (form.email.data == '' or PlanoDeSaude.email == form.email.data),
                 (form.site.data == '' or PlanoDeSaude.site == form.site.data)
             ).all())
+        else:
+            return redirect(url_for('home'))
     return render_template("filtrar_plano_de_saude.html", form=form)
 
 
@@ -470,11 +496,13 @@ def sala():
         if form.criar.data:
             criar_sala(form.numero.data, form.equipamentos.data)
             return redirect(url_for('home'))
-        else:
+        elif form.filtrar.data:
             return str(Sala.query.filter(
                 (form.numero.data == '' or Sala.numero == form.numero.data),
                 (form.equipamentos.data == '' or Sala.equipamentos == form.equipamentos.data)
             ).all())
+        else:
+            return redirect(url_for('home'))
     return render_template("filtrar_sala.html", form=form)
 
 
@@ -488,7 +516,7 @@ def medico():
                          form.periodo_de_trabalho.data, form.salario.data,
                          form.crm.data, form.especialidades.data)
             return redirect(url_for('home'))
-        else:
+        elif form.filtrar.data:
             return str(Medico.query.filter(
                 (form.cpf.data == '' or Medico.cpf == form.cpf.data),
                 (form.nome.data == '' or Medico.nome == form.nome.data),
@@ -500,6 +528,8 @@ def medico():
                 (form.crm.data == '' or Medico.crm == form.crm.data),
                 (form.especialidades.data == '' or Medico.especialidades == form.especialidades.data)
             ).all())
+        else:
+            return redirect(url_for('home'))
     return render_template("filtrar_medico.html", form=form)
 
 
@@ -513,7 +543,7 @@ def outro():
                          form.periodo_de_trabalho.data, form.salario.data,
                          form.funcao.data, form.formacao.data)
             return redirect(url_for('home'))
-        else:
+        elif form.filtrar.data:
             return str(Outros.query.filter(
                 (form.cpf.data == '' or Outros.cpf == form.cpf.data),
                 (form.nome.data == '' or Outros.nome == form.nome.data),
@@ -525,6 +555,8 @@ def outro():
                 (form.funcao.data == '' or Outros.funcao == form.funcao.data),
                 (form.formacao.data == '' or Outros.formacao == form.formacao.data)
             ).all())
+        else:
+            return redirect(url_for('home'))
     return render_template("filtrar_outro.html", form=form)
 
 
@@ -536,12 +568,14 @@ def consultorio():
             criar_consultorio(form.telefone.data, form.endereco.data,
                               form.nome.data)
             return redirect(url_for('home'))
-        else:
+        elif form.filtrar.data:
             return str(Consultorio.query.filter(
                 (form.telefone.data == '' or Consultorio.telefone == form.telefone.data),
                 (form.endereco.data == '' or Consultorio.endereco == form.endereco.data),
                 (form.nome.data == '' or Consultorio.nome == form.nome.data)
             ).all())
+        else:
+            return redirect(url_for('home'))
     return render_template("filtrar_consultorio.html", form=form)
 
 
