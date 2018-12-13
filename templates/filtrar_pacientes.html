@@ -1,0 +1,14 @@
+{% from "_formhelpers.html" import render_field %}
+<form method=post>
+  <dl>
+    {{ render_field(form.cpf) }}
+    {{ render_field(form.nome) }}
+    {{ render_field(form.telefone) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.endereco) }}
+    {{ render_field(form.data_de_nascimento) }}
+    {{ render_field(form.sexo) }}
+    {{ render_field(form.plano_de_saude) }}
+  </dl>
+  <p><input type=submit value=Filtrar>
+</form>

@@ -1,7 +1,9 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
-
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 Base = declarative_base()
@@ -301,6 +303,20 @@ def associar_ficha(paciente, medico, sala):
 
 
 # =============================================================================
+# Forms
+# =============================================================================
+class FiltroPaciente(FlaskForm):
+    cpf = StringField('cpf')
+    nome = StringField('nome')
+    telefone = StringField('telefone')
+    email = StringField('email')
+    endereco = StringField('endereco')
+    data_de_nascimento = StringField('data_de_nascimento')
+    sexo = StringField('sexo')
+    plano_de_saude = StringField('plano_de_saude')
+
+
+# =============================================================================
 # Views
 # =============================================================================
 
@@ -331,10 +347,22 @@ def teste():
     except Exception as e:
         return str(e)
 
-@app.route("/pacientes")
-def pacientes():
-    return "Pagina de pacientes"
 
+@app.route("/filtrar_pacientes", methods=('GET', 'POST'))
+def pacientes():
+    form = FiltroPaciente(csrf_enabled=False)
+    if form.validate_on_submit():
+        return str(Paciente.query.filter(
+            (form.cpf.data == '' or Paciente.cpf == form.cpf.data),
+            (form.nome.data == '' or Paciente.nome == form.nome.data),
+            (form.telefone.data == '' or Paciente.telefone == form.telefone.data),
+            (form.email.data == '' or Paciente.email == form.email.data),
+            (form.endereco.data == '' or Paciente.endereco == form.endereco.data),
+            (form.data_de_nascimento.data == '' or Paciente.data_de_nascimento == form.data_de_nascimento.data),
+            (form.sexo.data == '' or Paciente.sexo == form.sexo.data),
+            (form.plano_de_saude.data == '' or Paciente.plano_de_saude == form.plano_de_saude.data)
+        ).all())
+    return render_template("filtrar_pacientes.html", form=form)
 
 
 if __name__ == "__main__":
