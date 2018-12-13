@@ -1,8 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
 from flask_wtf import FlaskForm
-from wtforms import StringField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 app = Flask(__name__)
@@ -71,7 +71,7 @@ class Paciente(Base):
     email = db.Column(db.String(100), nullable=False)
     endereco = db.Column(db.String(100), nullable=False)
     data_de_nascimento = db.Column(db.String(100), nullable=False)
-    historico = db.Column(db.String(100), nullable=False)
+    historico = db.Column(db.String(100), nullable=True)
     sexo = db.Column(db.String(100), nullable=False)
     plano_de_saude = db.Column(db.String(40),
                                db.ForeignKey('plano_de_saude.nome_da_empresa'),
@@ -315,6 +315,10 @@ class FiltroPaciente(FlaskForm):
     sexo = StringField('sexo')
     plano_de_saude = StringField('plano_de_saude')
 
+    # Botões
+    filtrar = SubmitField(label="Filtrar")
+    criar = SubmitField(label="Criar")
+
 
 class FiltroPlanoDeSaude(FlaskForm):
     nome_da_empresa = StringField('nome_da_empresa')
@@ -363,6 +367,10 @@ class FiltroConsultorio(FlaskForm):
 # Views
 # =============================================================================
 
+@app.route("/home")
+def home():
+    return "Home Page"
+
 @app.route("/teste")
 def teste():
     try:
@@ -395,16 +403,23 @@ def teste():
 def paciente():
     form = FiltroPaciente(csrf_enabled=False)
     if form.validate_on_submit():
-        return str(Paciente.query.filter(
-            (form.cpf.data == '' or Paciente.cpf == form.cpf.data),
-            (form.nome.data == '' or Paciente.nome == form.nome.data),
-            (form.telefone.data == '' or Paciente.telefone == form.telefone.data),
-            (form.email.data == '' or Paciente.email == form.email.data),
-            (form.endereco.data == '' or Paciente.endereco == form.endereco.data),
-            (form.data_de_nascimento.data == '' or Paciente.data_de_nascimento == form.data_de_nascimento.data),
-            (form.sexo.data == '' or Paciente.sexo == form.sexo.data),
-            (form.plano_de_saude.data == '' or Paciente.plano_de_saude == form.plano_de_saude.data)
-        ).all())
+        if form.criar.data:
+            criar_paciente(form.cpf.data, form.nome.data, form.telefone.data,
+                           form.email.data, form.endereco.data,
+                           form.data_de_nascimento.data, None,
+                           form.sexo.data, form.plano_de_saude.data)
+            return redirect(url_for('home'))
+        else:
+            return str(Paciente.query.filter(
+                (form.cpf.data == '' or Paciente.cpf == form.cpf.data),
+                (form.nome.data == '' or Paciente.nome == form.nome.data),
+                (form.telefone.data == '' or Paciente.telefone == form.telefone.data),
+                (form.email.data == '' or Paciente.email == form.email.data),
+                (form.endereco.data == '' or Paciente.endereco == form.endereco.data),
+                (form.data_de_nascimento.data == '' or Paciente.data_de_nascimento == form.data_de_nascimento.data),
+                (form.sexo.data == '' or Paciente.sexo == form.sexo.data),
+                (form.plano_de_saude.data == '' or Paciente.plano_de_saude == form.plano_de_saude.data)
+            ).all())
     return render_template("filtrar_pacientes.html", form=form)
 
 
@@ -482,21 +497,3 @@ def consultorio():
 
 if __name__ == "__main__":
     app.run()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
