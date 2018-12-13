@@ -452,7 +452,7 @@ def paciente():
                            form.sexo.data, form.plano_de_saude.data)
             return redirect(url_for('home'))
         elif form.filtrar.data:
-            return str(Paciente.query.filter(
+            lista = Paciente.query.filter(
                 (form.cpf.data == '' or Paciente.cpf == form.cpf.data),
                 (form.nome.data == '' or Paciente.nome == form.nome.data),
                 (form.telefone.data == '' or Paciente.telefone == form.telefone.data),
@@ -461,7 +461,8 @@ def paciente():
                 (form.data_de_nascimento.data == '' or Paciente.data_de_nascimento == form.data_de_nascimento.data),
                 (form.sexo.data == '' or Paciente.sexo == form.sexo.data),
                 (form.plano_de_saude.data == '' or Paciente.plano_de_saude == form.plano_de_saude.data)
-            ).all())
+            ).all()
+            return render_template("listar_paciente.html", lista=lista)
         else:
             return redirect(url_for('home'))
     return render_template("filtrar_pacientes.html", form=form)
@@ -477,13 +478,14 @@ def plano_de_saude():
                                  form.site.data)
             return redirect(url_for('home'))
         elif form.filtrar.data:
-            return str(PlanoDeSaude.query.filter(
+            lista = PlanoDeSaude.query.filter(
                 (form.nome_da_empresa.data == '' or PlanoDeSaude.nome_da_empresa == form.nome_da_empresa.data),
                 (form.cnpj.data == '' or PlanoDeSaude.cnpj == form.cnpj.data),
                 (form.telefone.data == '' or PlanoDeSaude.telefone == form.telefone.data),
                 (form.email.data == '' or PlanoDeSaude.email == form.email.data),
                 (form.site.data == '' or PlanoDeSaude.site == form.site.data)
-            ).all())
+            ).all()
+            return render_template("listar_plano_de_saude.html", lista=lista)
         else:
             return redirect(url_for('home'))
     return render_template("filtrar_plano_de_saude.html", form=form)
@@ -497,10 +499,11 @@ def sala():
             criar_sala(form.numero.data, form.equipamentos.data)
             return redirect(url_for('home'))
         elif form.filtrar.data:
-            return str(Sala.query.filter(
+            lista = Sala.query.filter(
                 (form.numero.data == '' or Sala.numero == form.numero.data),
                 (form.equipamentos.data == '' or Sala.equipamentos == form.equipamentos.data)
-            ).all())
+            ).all()
+            return render_template("listar_sala.html", lista=lista)
         else:
             return redirect(url_for('home'))
     return render_template("filtrar_sala.html", form=form)
@@ -517,7 +520,7 @@ def medico():
                          form.crm.data, form.especialidades.data)
             return redirect(url_for('home'))
         elif form.filtrar.data:
-            return str(Medico.query.filter(
+            lista = Medico.query.filter(
                 (form.cpf.data == '' or Medico.cpf == form.cpf.data),
                 (form.nome.data == '' or Medico.nome == form.nome.data),
                 (form.telefone.data == '' or Medico.telefone == form.telefone.data),
@@ -527,7 +530,8 @@ def medico():
                 (form.salario.data == '' or Medico.salario == form.salario.data),
                 (form.crm.data == '' or Medico.crm == form.crm.data),
                 (form.especialidades.data == '' or Medico.especialidades == form.especialidades.data)
-            ).all())
+            ).all()
+            return render_template("listar_medico.html", lista=lista)
         else:
             return redirect(url_for('home'))
     return render_template("filtrar_medico.html", form=form)
@@ -544,7 +548,7 @@ def outro():
                          form.funcao.data, form.formacao.data)
             return redirect(url_for('home'))
         elif form.filtrar.data:
-            return str(Outros.query.filter(
+            lista = Outros.query.filter(
                 (form.cpf.data == '' or Outros.cpf == form.cpf.data),
                 (form.nome.data == '' or Outros.nome == form.nome.data),
                 (form.telefone.data == '' or Outros.telefone == form.telefone.data),
@@ -554,7 +558,8 @@ def outro():
                 (form.salario.data == '' or Outros.salario == form.salario.data),
                 (form.funcao.data == '' or Outros.funcao == form.funcao.data),
                 (form.formacao.data == '' or Outros.formacao == form.formacao.data)
-            ).all())
+            ).all()
+            return render_template("listar_outro.html", lista=lista)
         else:
             return redirect(url_for('home'))
     return render_template("filtrar_outro.html", form=form)
@@ -569,11 +574,12 @@ def consultorio():
                               form.nome.data)
             return redirect(url_for('home'))
         elif form.filtrar.data:
-            return str(Consultorio.query.filter(
+            lista = Consultorio.query.filter(
                 (form.telefone.data == '' or Consultorio.telefone == form.telefone.data),
                 (form.endereco.data == '' or Consultorio.endereco == form.endereco.data),
                 (form.nome.data == '' or Consultorio.nome == form.nome.data)
-            ).all())
+            ).all()
+            return render_template("listar_consultorio.html", lista=lista)
         else:
             return redirect(url_for('home'))
     return render_template("filtrar_consultorio.html", form=form)

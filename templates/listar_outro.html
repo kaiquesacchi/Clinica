@@ -1,0 +1,47 @@
+<style>
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td, th {
+	border: 1px solid #dddddd;
+	text-align: left;
+	padding: 8px;
+}
+
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+</style>
+<table>
+	<thead>
+		<tr>
+			<th>nome</th>
+			<th>cpf</th>
+			<th>telefone</th>
+			<th>endereco</th>
+			<th>email</th>
+			<th>periodo_de_trabalho</th>
+			<th>salario</th>
+			<th>função</th>
+			<th>formação</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for linha in lista %}
+		<tr>
+			<td>{{ linha.nome }}</td>
+			<td>{{ linha.cpf }}</td>
+			<td>{{ linha.telefone }}</td>
+			<td>{{ linha.endereco }}</td>
+			<td>{{ linha.email }}</td>
+			<td>{{ linha.periodo_de_trabalho }}</td>
+			<td>{{ linha.salario }}</td>
+			<td>{{ linha.funcao }}</td>
+			<td>{{ linha.formacao }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

@@ -1,0 +1,47 @@
+<style>
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td, th {
+	border: 1px solid #dddddd;
+	text-align: left;
+	padding: 8px;
+}
+
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+</style>
+<table>
+	<thead>
+		<tr>
+			<th>nome</th>
+			<th>cpf</th>
+			<th>telefone</th>
+			<th>email</th>
+			<th>endereco</th>
+			<th>data_de_nascimento</th>
+			<th>historico</th>
+			<th>sexo</th>
+			<th>plano_de_saude</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for linha in lista %}
+		<tr>
+			<td>{{ linha.nome }}</td>
+			<td>{{ linha.cpf }}</td>
+			<td>{{ linha.telefone }}</td>
+			<td>{{ linha.email }}</td>
+			<td>{{ linha.endereco }}</td>
+			<td>{{ linha.data_de_nascimento }}</td>
+			<td>{{ linha.historico }}</td>
+			<td>{{ linha.sexo }}</td>
+			<td>{{ linha.plano_de_saude }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>

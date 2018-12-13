@@ -1,0 +1,39 @@
+<style>
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td, th {
+	border: 1px solid #dddddd;
+	text-align: left;
+	padding: 8px;
+}
+
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+</style>
+<table>
+	<thead>
+		<tr>
+			<th>nome_da_empresa</th>
+			<th>cnpj</th>
+			<th>telefone</th>
+			<th>email</th>
+			<th>site</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for linha in lista %}
+		<tr>
+			<td>{{ linha.nome_da_empresa }}</td>
+			<td>{{ linha.cnpj }}</td>
+			<td>{{ linha.telefone }}</td>
+			<td>{{ linha.email }}</td>
+			<td>{{ linha.site }}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
