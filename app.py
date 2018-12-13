@@ -231,8 +231,8 @@ class Consultorio(Base):
         self.nome = nome
 
     def __repr__(self):
-        return "Consultorio(ID: {}, Nome: {}, Telefone: {})".format(
-            self.id, self.nome, self.telefone
+        return "Consultorio(ID: {}, Nome: {}, Telefone: {}, Funcionarios: {})".format(
+            self.id, self.nome, self.telefone, self.funcionarios
         )
 
 
@@ -341,6 +341,24 @@ class FiltroMedico(FlaskForm):
     especialidades = StringField('especialidades')
 
 
+class FiltroOutro(FlaskForm):
+    cpf = StringField('cpf')
+    nome = StringField('nome')
+    telefone = StringField('telefone')
+    endereco = StringField('endereco')
+    email = StringField('email')
+    periodo_de_trabalho = StringField('periodo_de_trabalho')
+    salario = StringField('salario')
+    funcao = StringField('funcao')
+    formacao = StringField('formacao')
+
+
+class FiltroConsultorio(FlaskForm):
+    telefone = StringField('telefone')
+    endereco = StringField('endereco')
+    nome = StringField('nome')
+
+
 # =============================================================================
 # Views
 # =============================================================================
@@ -432,6 +450,35 @@ def medico():
         ).all())
     return render_template("filtrar_medico.html", form=form)
 
+
+@app.route("/filtrar-outro", methods=('GET', 'POST'))
+def outro():
+    form = FiltroOutro(csrf_enabled=False)
+    if form.validate_on_submit():
+        return str(Outros.query.filter(
+            (form.cpf.data == '' or Outros.cpf == form.cpf.data),
+            (form.nome.data == '' or Outros.nome == form.nome.data),
+            (form.telefone.data == '' or Outros.telefone == form.telefone.data),
+            (form.endereco.data == '' or Outros.endereco == form.endereco.data),
+            (form.email.data == '' or Outros.email == form.email.data),
+            (form.periodo_de_trabalho.data == '' or Outros.periodo_de_trabalho == form.periodo_de_trabalho.data),
+            (form.salario.data == '' or Outros.salario == form.salario.data),
+            (form.funcao.data == '' or Outros.funcao == form.funcao.data),
+            (form.formacao.data == '' or Outros.formacao == form.formacao.data)
+        ).all())
+    return render_template("filtrar_outro.html", form=form)
+
+
+@app.route("/filtrar-consultorio", methods=('GET', 'POST'))
+def consultorio():
+    form = FiltroConsultorio(csrf_enabled=False)
+    if form.validate_on_submit():
+        return str(Consultorio.query.filter(
+            (form.telefone.data == '' or Consultorio.telefone == form.telefone.data),
+            (form.endereco.data == '' or Consultorio.endereco == form.endereco.data),
+            (form.nome.data == '' or Consultorio.nome == form.nome.data)
+        ).all())
+    return render_template("filtrar_consultorio.html", form=form)
 
 if __name__ == "__main__":
     app.run()
