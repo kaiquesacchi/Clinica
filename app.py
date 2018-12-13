@@ -327,10 +327,18 @@ class FiltroPlanoDeSaude(FlaskForm):
     email = StringField('email')
     site = StringField('site')
 
+    # Botões
+    filtrar = SubmitField(label="Filtrar")
+    criar = SubmitField(label="Criar")
+
 
 class FiltroSala(FlaskForm):
     numero = StringField('numero')
     equipamentos = StringField('equipamentos')
+
+    # Botões
+    filtrar = SubmitField(label="Filtrar")
+    criar = SubmitField(label="Criar")
 
 
 class FiltroMedico(FlaskForm):
@@ -344,6 +352,10 @@ class FiltroMedico(FlaskForm):
     crm = StringField('crm')
     especialidades = StringField('especialidades')
 
+    # Botões
+    filtrar = SubmitField(label="Filtrar")
+    criar = SubmitField(label="Criar")
+
 
 class FiltroOutro(FlaskForm):
     cpf = StringField('cpf')
@@ -356,11 +368,19 @@ class FiltroOutro(FlaskForm):
     funcao = StringField('funcao')
     formacao = StringField('formacao')
 
+    # Botões
+    filtrar = SubmitField(label="Filtrar")
+    criar = SubmitField(label="Criar")
+
 
 class FiltroConsultorio(FlaskForm):
     telefone = StringField('telefone')
     endereco = StringField('endereco')
     nome = StringField('nome')
+
+    # Botões
+    filtrar = SubmitField(label="Filtrar")
+    criar = SubmitField(label="Criar")
 
 
 # =============================================================================
@@ -427,13 +447,19 @@ def paciente():
 def plano_de_saude():
     form = FiltroPlanoDeSaude(csrf_enabled=False)
     if form.validate_on_submit():
-        return str(PlanoDeSaude.query.filter(
-            (form.nome_da_empresa.data == '' or PlanoDeSaude.nome_da_empresa == form.nome_da_empresa.data),
-            (form.cnpj.data == '' or PlanoDeSaude.cnpj == form.cnpj.data),
-            (form.telefone.data == '' or PlanoDeSaude.telefone == form.telefone.data),
-            (form.email.data == '' or PlanoDeSaude.email == form.email.data),
-            (form.site.data == '' or PlanoDeSaude.site == form.site.data)
-        ).all())
+        if form.criar.data:
+            criar_plano_de_saude(form.nome_da_empresa.data, form.cnpj.data,
+                                 form.telefone.data, form.email.data,
+                                 form.site.data)
+            return redirect(url_for('home'))
+        else:
+            return str(PlanoDeSaude.query.filter(
+                (form.nome_da_empresa.data == '' or PlanoDeSaude.nome_da_empresa == form.nome_da_empresa.data),
+                (form.cnpj.data == '' or PlanoDeSaude.cnpj == form.cnpj.data),
+                (form.telefone.data == '' or PlanoDeSaude.telefone == form.telefone.data),
+                (form.email.data == '' or PlanoDeSaude.email == form.email.data),
+                (form.site.data == '' or PlanoDeSaude.site == form.site.data)
+            ).all())
     return render_template("filtrar_plano_de_saude.html", form=form)
 
 
@@ -441,10 +467,14 @@ def plano_de_saude():
 def sala():
     form = FiltroSala(csrf_enabled=False)
     if form.validate_on_submit():
-        return str(Sala.query.filter(
-            (form.numero.data == '' or Sala.numero == form.numero.data),
-            (form.equipamentos.data == '' or Sala.equipamentos == form.equipamentos.data)
-        ).all())
+        if form.criar.data:
+            criar_sala(form.numero.data, form.equipamentos.data)
+            return redirect(url_for('home'))
+        else:
+            return str(Sala.query.filter(
+                (form.numero.data == '' or Sala.numero == form.numero.data),
+                (form.equipamentos.data == '' or Sala.equipamentos == form.equipamentos.data)
+            ).all())
     return render_template("filtrar_sala.html", form=form)
 
 
@@ -452,17 +482,24 @@ def sala():
 def medico():
     form = FiltroMedico(csrf_enabled=False)
     if form.validate_on_submit():
-        return str(Medico.query.filter(
-            (form.cpf.data == '' or Medico.cpf == form.cpf.data),
-            (form.nome.data == '' or Medico.nome == form.nome.data),
-            (form.telefone.data == '' or Medico.telefone == form.telefone.data),
-            (form.endereco.data == '' or Medico.endereco == form.endereco.data),
-            (form.email.data == '' or Medico.email == form.email.data),
-            (form.periodo_de_trabalho.data == '' or Medico.periodo_de_trabalho == form.periodo_de_trabalho.data),
-            (form.salario.data == '' or Medico.salario == form.salario.data),
-            (form.crm.data == '' or Medico.crm == form.crm.data),
-            (form.especialidades.data == '' or Medico.especialidades == form.especialidades.data)
-        ).all())
+        if form.criar.data:
+            criar_medico(form.cpf.data, form.nome.data, form.telefone.data,
+                         form.endereco.data, form.email.data,
+                         form.periodo_de_trabalho.data, form.salario.data,
+                         form.crm.data, form.especialidades.data)
+            return redirect(url_for('home'))
+        else:
+            return str(Medico.query.filter(
+                (form.cpf.data == '' or Medico.cpf == form.cpf.data),
+                (form.nome.data == '' or Medico.nome == form.nome.data),
+                (form.telefone.data == '' or Medico.telefone == form.telefone.data),
+                (form.endereco.data == '' or Medico.endereco == form.endereco.data),
+                (form.email.data == '' or Medico.email == form.email.data),
+                (form.periodo_de_trabalho.data == '' or Medico.periodo_de_trabalho == form.periodo_de_trabalho.data),
+                (form.salario.data == '' or Medico.salario == form.salario.data),
+                (form.crm.data == '' or Medico.crm == form.crm.data),
+                (form.especialidades.data == '' or Medico.especialidades == form.especialidades.data)
+            ).all())
     return render_template("filtrar_medico.html", form=form)
 
 
@@ -470,17 +507,24 @@ def medico():
 def outro():
     form = FiltroOutro(csrf_enabled=False)
     if form.validate_on_submit():
-        return str(Outros.query.filter(
-            (form.cpf.data == '' or Outros.cpf == form.cpf.data),
-            (form.nome.data == '' or Outros.nome == form.nome.data),
-            (form.telefone.data == '' or Outros.telefone == form.telefone.data),
-            (form.endereco.data == '' or Outros.endereco == form.endereco.data),
-            (form.email.data == '' or Outros.email == form.email.data),
-            (form.periodo_de_trabalho.data == '' or Outros.periodo_de_trabalho == form.periodo_de_trabalho.data),
-            (form.salario.data == '' or Outros.salario == form.salario.data),
-            (form.funcao.data == '' or Outros.funcao == form.funcao.data),
-            (form.formacao.data == '' or Outros.formacao == form.formacao.data)
-        ).all())
+        if form.criar.data:
+            criar_outros(form.cpf.data, form.nome.data, form.telefone.data,
+                         form.endereco.data, form.email.data,
+                         form.periodo_de_trabalho.data, form.salario.data,
+                         form.funcao.data, form.formacao.data)
+            return redirect(url_for('home'))
+        else:
+            return str(Outros.query.filter(
+                (form.cpf.data == '' or Outros.cpf == form.cpf.data),
+                (form.nome.data == '' or Outros.nome == form.nome.data),
+                (form.telefone.data == '' or Outros.telefone == form.telefone.data),
+                (form.endereco.data == '' or Outros.endereco == form.endereco.data),
+                (form.email.data == '' or Outros.email == form.email.data),
+                (form.periodo_de_trabalho.data == '' or Outros.periodo_de_trabalho == form.periodo_de_trabalho.data),
+                (form.salario.data == '' or Outros.salario == form.salario.data),
+                (form.funcao.data == '' or Outros.funcao == form.funcao.data),
+                (form.formacao.data == '' or Outros.formacao == form.formacao.data)
+            ).all())
     return render_template("filtrar_outro.html", form=form)
 
 
@@ -488,12 +532,18 @@ def outro():
 def consultorio():
     form = FiltroConsultorio(csrf_enabled=False)
     if form.validate_on_submit():
-        return str(Consultorio.query.filter(
-            (form.telefone.data == '' or Consultorio.telefone == form.telefone.data),
-            (form.endereco.data == '' or Consultorio.endereco == form.endereco.data),
-            (form.nome.data == '' or Consultorio.nome == form.nome.data)
-        ).all())
+        if form.criar.data:
+            criar_consultorio(form.telefone.data, form.endereco.data,
+                              form.nome.data)
+            return redirect(url_for('home'))
+        else:
+            return str(Consultorio.query.filter(
+                (form.telefone.data == '' or Consultorio.telefone == form.telefone.data),
+                (form.endereco.data == '' or Consultorio.endereco == form.endereco.data),
+                (form.nome.data == '' or Consultorio.nome == form.nome.data)
+            ).all())
     return render_template("filtrar_consultorio.html", form=form)
+
 
 if __name__ == "__main__":
     app.run()
