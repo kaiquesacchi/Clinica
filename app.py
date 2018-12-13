@@ -15,7 +15,7 @@ db = SQLAlchemy(app, model_class=Base)
 class Trabalha(Base):
     __tablename__ = 'trabalha'
     # Chaves
-    funcionario_cpf = db.Column(db.Integer, db.ForeignKey('funcionario.cpf'),
+    funcionario_cpf = db.Column(db.String(20), db.ForeignKey('funcionario.cpf'),
                                 primary_key=True)
     consultorio_id = db.Column(db.Integer, db.ForeignKey('consultorio.id'),
                                primary_key=True)
@@ -37,6 +37,30 @@ class Trabalha(Base):
         )
 
 
+class Ficha(Base):
+    __tablename__ = 'ficha'
+    # Chaves
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    paciente_cpf = db.Column(db.String(20), db.ForeignKey('paciente.cpf'))
+    medico_cpf = db.Column(db.String(20), db.ForeignKey('medico.cpf'))
+    sala_numero = db.Column(db.String(40), db.ForeignKey('sala.numero'))
+
+    # Relações
+    paciente = db.relationship('Paciente', back_populates='consultas')
+    medico = db.relationship('Medico', back_populates='consultas')
+    sala = db.relationship('Sala', back_populates='consultas')
+
+    def __init__(self, paciente, medico, sala):
+        self.paciente = paciente
+        self.medico = medico
+        self.sala = sala
+
+    def __repr__(self):
+        return "Ficha(Paciente(Nome: {}), Medico(Nome: {}), Sala(Numero: {})".format(
+            self.paciente.nome, self.medico.nome, self.sala.numero
+        )
+
+
 class Paciente(Base):
     __tablename__ = 'paciente'
     cpf = db.Column(db.String(20), primary_key=True, nullable=False)
@@ -50,6 +74,7 @@ class Paciente(Base):
     plano_de_saude = db.Column(db.String(40),
                                db.ForeignKey('plano_de_saude.nome_da_empresa'),
                                nullable=False)
+    consultas = db.relationship('Ficha', back_populates='paciente')
 
     def __init__(self, cpf, nome, telefone, email, endereco,
                  data_de_nascimento, historico, sexo, plano_de_saude):
@@ -96,16 +121,17 @@ class PlanoDeSaude(Base):
 
 class Sala(Base):
     __tablename__ = 'sala'
-    numero_da_sala = db.Column(db.String(40), primary_key=True, nullable=False)
+    numero = db.Column(db.String(40), primary_key=True, nullable=False)
     equipamentos = db.Column(db.String(100), nullable=False)
+    consultas = db.relationship('Ficha', back_populates='sala')
 
-    def __init__(self, numero_da_sala, equipamentos):
-        self.numero_da_sala = numero_da_sala
+    def __init__(self, numero, equipamentos):
+        self.numero = numero
         self.equipamentos = equipamentos
 
     def __repr__(self):
-        return "Sala(Numero da Sala: {}, Equipamentos: {})".format(
-            self.numero_da_sala, self.equipamentos
+        return "Sala(Numero: {}, Equipamentos: {})".format(
+            self.numero, self.equipamentos
         )
 
 
@@ -148,6 +174,7 @@ class Medico(Funcionario):
                     primary_key=True)
     crm = db.Column(db.String(20), nullable=False)
     especialidades = db.Column(db.String(120), nullable=False)
+    consultas = db.relationship('Ficha', back_populates='medico')
 
     __mapper_args__ = {
         'polymorphic_identity': 'medico',
@@ -208,34 +235,8 @@ class Consultorio(Base):
 
 
 # =============================================================================
-# Views
+# Controllers
 # =============================================================================
-
-@app.route("/teste")
-def teste():
-    try:
-        db.create_all()
-        for table in db.metadata.sorted_tables:
-            db.session.execute(table.delete())
-        db.session.commit()
-        criar_plano_de_saude("Porto", "1234567845561", "121516515",
-                             "dae@cnsd.com", "www.porto.com")
-        criar_paciente("123", "Felipe", "987654321", "joao@gmail.com",
-                       "Rua Três", "23/12/1987", "Nada", "Masculino", "Porto")
-        criar_sala("32", "maquinas diversas")
-        medico = criar_medico("525252", "Dr. Fernando", "123456", "Av. dos Medicos",
-                     "fern@ndo.com", "Diurno", "12000", "789789", "Nenhuma")
-        criar_outros("121212", "Pedro Dante", "12121354685",
-                     "Av. dos Segurancas", "pedro@email.com", "noturno",
-                     "3000", "Seguranca", "Engenharia de Producao")
-        consultorio = criar_consultorio("15651651", "Alameda Consultorial", "Primordial")
-        consultorio2 = criar_consultorio("785418", "Alameda Nao Consultorial", "O outro")
-        associar_trabalha(medico, consultorio)
-        associar_trabalha(medico, consultorio2)
-        return str(Medico.query.all())
-    except Exception as e:
-        return str(e)
-
 
 def criar_paciente(cpf, nome, telefone, email, endereco,
                    data_de_nascimento, historico, sexo, plano_de_saude):
@@ -253,8 +254,8 @@ def criar_plano_de_saude(nome_da_empresa, cnpj, telefone, email, site):
     return plano_de_saude
 
 
-def criar_sala(numero_da_sala, equipamentos):
-    sala = Sala(numero_da_sala, equipamentos)
+def criar_sala(numero, equipamentos):
+    sala = Sala(numero, equipamentos)
     db.session.add(sala)
     db.session.commit()
     return sala
@@ -290,6 +291,51 @@ def associar_trabalha(funcionario, consultorio):
     db.session.add(trabalha)
     db.session.commit()
     return trabalha
+
+
+def associar_ficha(paciente, medico, sala):
+    ficha = Ficha(paciente, medico, sala)
+    db.session.add(ficha)
+    db.session.commit()
+    return ficha
+
+
+# =============================================================================
+# Views
+# =============================================================================
+
+@app.route("/teste")
+def teste():
+    try:
+        db.create_all()
+        for table in db.metadata.sorted_tables:
+            db.session.execute(table.delete())
+        db.session.commit()
+        criar_plano_de_saude("Porto", "1234567845561", "121516515",
+                             "dae@cnsd.com", "www.porto.com")
+        paciente = criar_paciente("123", "Felipe", "987654321", "joao@gmail.com",
+                       "Rua Três", "23/12/1987", "Nada", "Masculino", "Porto")
+        sala = criar_sala("32", "maquinas diversas")
+        medico = criar_medico("525252", "Dr. Fernando", "123456", "Av. dos Medicos",
+                     "fern@ndo.com", "Diurno", "12000", "789789", "Nenhuma")
+        criar_outros("121212", "Pedro Dante", "12121354685",
+                     "Av. dos Segurancas", "pedro@email.com", "noturno",
+                     "3000", "Seguranca", "Engenharia de Producao")
+        consultorio = criar_consultorio("15651651", "Alameda Consultorial", "Primordial")
+        consultorio2 = criar_consultorio("785418", "Alameda Nao Consultorial", "O outro")
+        associar_trabalha(medico, consultorio)
+        associar_trabalha(medico, consultorio2)
+        associar_ficha(paciente, medico, sala)
+
+        return str(Ficha.query.all())
+    except Exception as e:
+        return str(e)
+
+@app.route("/pacientes")
+def pacientes():
+    return "Pagina de pacientes"
+
+
 
 if __name__ == "__main__":
     app.run()
