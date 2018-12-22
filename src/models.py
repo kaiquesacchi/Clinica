@@ -35,7 +35,12 @@ class Ficha(Base):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     paciente_cpf = db.Column(db.String(20), db.ForeignKey('paciente.cpf'))
     medico_cpf = db.Column(db.String(20), db.ForeignKey('medico.cpf'))
-    sala_numero = db.Column(db.String(40), db.ForeignKey('sala.numero'))
+    sala_id = db.Column(db.Integer, db.ForeignKey('sala.id'))
+
+    # Atributos
+    comentarios = db.Column(db.String(500))
+    sintomas = db.Column(db.String(500))
+    exames = db.Column(db.String(500))
 
     # Relações
     paciente = db.relationship('Paciente', back_populates='consultas')
@@ -113,7 +118,9 @@ class PlanoDeSaude(Base):
 
 class Sala(Base):
     __tablename__ = 'sala'
-    numero = db.Column(db.String(40), primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    numero = db.Column(db.String(40), nullable=False)
+    # setor = db.Column(db.String(40), nullable=False)
     equipamentos = db.Column(db.String(100), nullable=False)
     consultas = db.relationship('Ficha', back_populates='sala')
 

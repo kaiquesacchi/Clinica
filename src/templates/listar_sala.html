@@ -18,6 +18,7 @@ tr:nth-child(even) {
 <table>
 	<thead>
 		<tr>
+			<th>id</th>
 			<th>numero</th>
 			<th>equipamentos</th>
 		</tr>
@@ -25,6 +26,7 @@ tr:nth-child(even) {
 	<tbody>
 		{% for linha in lista %}
 		<tr>
+			<td>{{ linha.id }}</td>
 			<td>{{ linha.numero }}</td>
 			<td>{{ linha.equipamentos }}</td>
 		</tr>
