@@ -2,71 +2,9 @@ from flask import render_template, redirect, url_for
 from src import app
 from src.forms import *
 from src.models import *
+import os
 
-
-def criar_paciente(cpf, nome, telefone, email, endereco,
-                   data_de_nascimento, historico, sexo, plano_de_saude):
-    paciente = Paciente(cpf, nome, telefone, email, endereco,
-                        data_de_nascimento, historico, sexo, plano_de_saude)
-    db.session.add(paciente)
-    db.session.commit()
-    return paciente
-
-
-def criar_plano_de_saude(nome_da_empresa, cnpj, telefone, email, site):
-    plano_de_saude = PlanoDeSaude(nome_da_empresa, cnpj, telefone, email, site)
-    db.session.add(plano_de_saude)
-    db.session.commit()
-    return plano_de_saude
-
-
-def criar_sala(numero, equipamentos):
-    sala = Sala(numero, equipamentos)
-    db.session.add(sala)
-    db.session.commit()
-    return sala
-
-
-def criar_medico(cpf, nome, telefone, endereco, email,
-                 periodo_de_trabalho, salario, crm, especialidades):
-    medico = Medico(cpf, nome, telefone, endereco, email,
-                    periodo_de_trabalho, salario, crm, especialidades)
-    db.session.add(medico)
-    db.session.commit()
-    return medico
-
-
-def criar_outros(cpf, nome, telefone, endereco, email,
-                 periodo_de_trabalho, salario, funcao, formacao):
-    outro = Outros(cpf, nome, telefone, endereco, email,
-                   periodo_de_trabalho, salario, funcao, formacao)
-    db.session.add(outro)
-    db.session.commit()
-    return outro
-
-
-def criar_consultorio(telefone, endereco, nome):
-    consultorio = Consultorio(telefone, endereco, nome)
-    db.session.add(consultorio)
-    db.session.commit()
-    return consultorio
-
-
-def associar_trabalha(funcionario, consultorio):
-    trabalha = Trabalha(funcionario, consultorio)
-    db.session.add(trabalha)
-    db.session.commit()
-    return trabalha
-
-
-def associar_ficha(paciente, medico, sala):
-    ficha = Ficha(paciente, medico, sala)
-    db.session.add(ficha)
-    db.session.commit()
-    return ficha
-
-
-@app.route("/home", methods=('GET', 'POST'))
+@app.route("/", methods=('GET', 'POST'))
 def home():
     form = Home(csrf_enabled=False)
     if form.validate_on_submit():
@@ -82,28 +20,82 @@ def home():
 @app.route("/teste")
 def teste():
     try:
+        os.system('clear')
+        # Iniciar tabelas
         db.create_all()
         for table in db.metadata.sorted_tables:
             db.session.execute(table.delete())
         db.session.commit()
-        criar_plano_de_saude("Porto", "1234567845561", "121516515",
-                             "dae@cnsd.com", "www.porto.com")
-        paciente = criar_paciente("123", "Felipe", "987654321", "joao@gmail.com",
-                       "Rua Três", "23/12/1987", "Nada", "Masculino", "Porto")
-        sala = criar_sala("32", "maquinas diversas")
-        medico = criar_medico("525252", "Dr. Fernando", "123456", "Av. dos Medicos",
-                     "fern@ndo.com", "Diurno", "12000", "789789", "Nenhuma")
-        criar_outros("121212", "Pedro Dante", "12121354685",
-                     "Av. dos Segurancas", "pedro@email.com", "noturno",
-                     "3000", "Seguranca", "Engenharia de Producao")
-        consultorio = criar_consultorio("15651651", "Alameda Consultorial", "Primordial")
-        consultorio2 = criar_consultorio("785418", "Alameda Nao Consultorial", "O outro")
-        associar_trabalha(medico, consultorio)
-        associar_trabalha(medico, consultorio2)
-        associar_ficha(paciente, medico, sala)
 
-        return str(Ficha.query.all())
+        # Criação de Plano de Saúde
+        db.session.add(
+            PlanoDeSaude(cnpj='12345678901234',
+                         nome_da_empresa='Porto Seguro',
+                         telefone='(11)3012-4561',
+                         email='porto@porto.com',
+                         site='portoseguro.com.br')
+        )
+        db.session.commit()
+        for a in PlanoDeSaude.query.all(): print(a)
+
+        # Criação de Paciente
+        paciente = Paciente(cpf='12345678901',
+                            nome='Fernando da Silva',
+                            email='fernando.silva@gmail.com',
+                            telefone='(14)5124-1563',
+                            endereco='Avenida dos Pacientes, 215',
+                            data_de_nascimento='12/05/1997',
+                            sexo='masculino',
+                            historico='alergias diversas',
+                            plano_de_saude_cnpj='12345678901234')
+        db.session.add(paciente)
+        db.session.commit()
+        for a in Paciente.query.all(): print(a)
+
+        # Criação de Funcionário, Médico e Assistente
+        funcionario = Funcionario(cpf='11111111111',
+                                  nome='Paulo Cezar',
+                                  email='paulo@cezar.com',
+                                  telefone='(11) 1234-5678',
+                                  endereco='Rua dos Funcionarios, 12',
+                                  formacao='',
+                                  salario='R$999999,00',
+                                  periodo_de_trabalho='diurno')
+        db.session.add(funcionario)
+        db.session.commit()
+
+        medico = Medico(cpf='22222222222',
+                        nome='Dr. Rodrigo Mall',
+                        email='rodrigo@yahoo.com.br',
+                        telefone='(22)1234-1234',
+                        endereco='Bosque dos Medicos, 34 - apto 3',
+                        formacao='Faculdade de Medicina',
+                        salario='R$12,00',
+                        periodo_de_trabalho='noturno',
+                        crm='12345-6',
+                        especialidades='cirurgião')
+        db.session.add(medico)
+        db.session.commit()
+
+        assistente = Assistente(cpf='33333333333',
+                                nome='Pedro Arantes',
+                                email='pedro@gmail.com',
+                                telefone='(23)1234-5555',
+                                endereco='Boulevard Assistencial, 7000',
+                                formacao='Enfermagem',
+                                salario='R$5,00',
+                                periodo_de_trabalho='Integral',
+                                funcao='Enfermeiro, Massagista')
+        db.session.add(assistente)
+        db.session.commit()
+
+        db.session.add(funcionario)
+        db.session.commit()
+        for a in Funcionario.query.all(): print(a)
+
+        return('Sucesso')
     except Exception as e:
+        raise e
         return str(e)
 
 
